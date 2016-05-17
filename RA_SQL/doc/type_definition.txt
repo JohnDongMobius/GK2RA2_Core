@@ -1,0 +1,31 @@
+feed_type:
+101-MSC feed, 
+201-SGSN feed, 202-GGSN feed, 
+301-IN feed, 302-TAPOUT feed, 303-TAPIN feed, 304-Billing Huaiwei feed, 305-Legacy, 306-Billing Ericsson CCN feed
+
+file_type:
+1-GSM,2-CDMA,3-IGW,4-PSTN
+
+billing_type	
+	0 - unkown type
+	1 - IN
+	2 - TAP OUT
+	3 - TAP IN
+	4 - Huawei
+	5 - Legacy
+	6 - Erission CCN
+
+call_type:
+Add the following values for Niger Project.
+101-MOC On-net, 102-MOC Off-net, 103-MOC International (feed_type:101-MSC), 104-MOC SGSN (feed_type:201-SGSN), 105-MOC GGSN (feed_type:202-GGSN)
+201-MTC On-net, 202-MTC Off-net, 203-MTC International (feed_type:101-MSC)
+204-MTC Fixed On-net, 205-MTC Fixed Off-net (feed_type:101-MSC)
+161-Roaming Inbound (feed_type:302-TAPOUT), 162-Roaming Outbound (feed_type:303-TAPIN)	
+111-MOC SMS On-net, 112-MOC SMS Off-net, 113-MOC SMS International (feed_type:101-MSC)
+211-MTC SMS On-net, 212-MTC SMS Off-net, 213-MTC SMS International (feed_type:101-MSC)
+84-Premium Rate Services (feed_type:101-MSC)
+
+
+
+
+MTC-Offnet: in Inbound Roamer Incoming CDR, B number is from other operator (including local and international) using its network. It's a concept related to roaming.

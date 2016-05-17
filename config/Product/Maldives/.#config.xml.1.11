@@ -1,0 +1,562 @@
+<ra-core>
+	<common>
+		<is-product-mode>YES</is-product-mode>
+
+		<!--operator basic info -->
+		<!-- Maldives: Indian/Maldives; Bravo: Asia/Riyadh; Somtel: -->
+		<msisdn-prefix>960</msisdn-prefix>
+		<local-timezone>Indian/Maldives</local-timezone>
+		<operator-code>472_2</operator-code>
+
+		<!--Unit: ms -->
+		<sleep-duration-after-one-loop>1800000</sleep-duration-after-one-loop>
+		<sleep-duration-of-subthread>10000</sleep-duration-of-subthread>
+		<sleep-duration-of-paid>10000</sleep-duration-of-paid>
+
+		<!--Unit: second, for reconsiliation when comparing -->
+		<deviation>
+			<call-time>3</call-time>
+			<duration>3</duration>
+		</deviation>
+
+		<!--Parallelly or Serially among reports -->
+		<generate-order>Serially</generate-order>
+
+		<!--Transition Status -->
+		<transition-status active="0">
+			<!-- for updating fileName -->
+			<updating-filename>2</updating-filename>
+		</transition-status>
+		<one-side-nodata-comparison>1</one-side-nodata-comparison>
+
+	</common>
+
+
+	<feed-list>
+		<!-- type=1**(MSC),2**(GPRS-Network),3**(billing) -->
+		<!-- MSC feed, for Maldives, it should be in another database and server -->
+		<feed type="101" active="1" database="mediator_472_2">
+			<sql>select distinct file_name, file_size_bytes from call_count where
+				feed_type=101 and (file_first_call_time >= ? and
+				file_first_call_time &lt; ?) or (file_last_call_time >= ? and
+				file_last_call_time &lt; ?)</sql>
+		</feed>
+		<!-- SGSN feed -->
+		<feed type="201" active="1">
+			<sql>select distinct a.file_name, b.file_size_bytes from ra_network
+				a, call_count b where a.call_time >= ? and a.call_time &lt; ? and
+				a.call_type=12 and a.file_name=b.file_name
+			</sql>
+		</feed>
+		<!-- GGSN feed -->
+		<feed type="202" active="1">
+			<sql>select distinct a.file_name, b.file_size_bytes from ra_network
+				a, call_count b where a.call_time >= ? and a.call_time &lt; ? and
+				a.call_type=46 and a.file_name=b.file_name
+			</sql>
+		</feed>
+		<!-- IN feed,CCN -->
+		<feed type="306" active="1">
+			<sql>select distinct a.file_name, b.file_size_bytes from ra_billing
+				a, call_count b where a.call_time >= ? and a.call_time &lt; ? and
+				a.billing_type=1 and a.call_type=1 and a.file_name=b.file_name
+			</sql>
+		</feed>
+		<!-- TAPOUT feed -->
+		<feed type="302" active="1">
+			<sql>select distinct a.file_name, b.file_size_bytes from ra_billing
+				a, call_count b where a.call_time >= ? and a.call_time &lt; ? and
+				a.billing_type=2 and a.file_name=b.file_name
+			</sql>
+			<file-report active="1">
+				<hostname>10.213.2.39</hostname>
+				<username></username>
+				<password>mo2bi5us0ws5</password>
+				<uploaded-txt-path>/cdrshare01/mediation/472_2/tapout_txt
+				</uploaded-txt-path>
+				<match-pattern>TAPOUT*?.txt</match-pattern>
+				<!-- how many filenames of days before&after traffic_date to load from 
+					call_count in order to compare with upload file. -->
+				<compare-deviation-day>1</compare-deviation-day>
+				<refer-sql>select file_name, file_size_bytes, decoded_result from
+					downloaded_file where file_name like 'CDMDVWM%' and download_time >= ? and download_time &lt; ?</refer-sql>
+			</file-report>
+		</feed>
+		<!-- TAPIN feed -->
+		<feed type="303" active="1">
+			<sql>select distinct a.file_name, b.file_size_bytes from ra_billing
+				a, call_count b where a.call_time >= ? and a.call_time &lt; ? and
+				a.billing_type=3 and a.file_name=b.file_name
+			</sql>
+		</feed>
+		<!-- RTX feed -->
+		<feed type="307" active="1">
+			<sql>select distinct a.file_name, b.file_size_bytes from ra_billing
+				a, call_count b where a.call_time >= ? and a.call_time &lt; ? and
+				a.billing_type=6 and a.call_type in (1,29) and
+				a.file_name=b.file_name
+			</sql>
+		</feed>
+	</feed-list>
+	<report-list>
+		<report name="MSC/Billing" type="0" msc_feed_type=""
+			billing_feed_type="">
+			<!--0: Disactive; 1: Active -->
+			<active>0</active>
+			<thread-num>10</thread-num>
+
+			<!--0: No redo; 1: Redo -->
+			<redo-switch>1</redo-switch>
+			<short-active>0</short-active>
+			<msc-filename-update>0</msc-filename-update>
+			<!--Unit: day -->
+			<start-date-before-current>-1</start-date-before-current>
+			<start-date-before-redo>-2</start-date-before-redo>
+			<execute-days-default>15</execute-days-default>
+
+			<!-- 1-prepaid, 2-postpaid, 0-blank -->
+			<subscriber-type>0</subscriber-type>
+
+			<sqls msc-pp-flg="POSTP_Process_CurrentHour" msc-pp-redo-flg="POSTP_Process_CurrentHour_Redo"
+				billing-pp-flg="PP_RA_CurrentHour" billing-pp-redo-flg="PP_RA_CurrentHour_Redo">
+				<sql>
+					<method>getMscList</method>
+					<value>select * from calls_nodup where call_time >= ? and call_time
+						&lt; ? and call_type in (1,2)</value>
+				</sql>
+				<sql>
+					<method>getMscListRedo</method>
+					<value>select * from calls_nodup_redo where call_time >= ? and
+						call_time &lt; ? and call_type in (1,2)</value>
+				</sql>
+				<sql>
+					<method>getBillingList</method>
+					<value>select * from ra_billing where call_time >= ? and call_time
+						&lt; ? and billing_type = 0 and call_type in (1,2)</value>
+				</sql>
+				<sql>
+					<!--1: MSC only; 2: billing only. Notice order -->
+					<detail-type>1,2</detail-type>
+				</sql>
+			</sqls>
+		</report>
+
+		<report name="MSC/IN" type="1" msc_feed_type="101"
+			billing_feed_type="306">
+			<active>1</active>
+			<thread-num>10</thread-num>
+			<redo-switch>1</redo-switch>
+			<short-active>0</short-active>
+			<msc-filename-update>1</msc-filename-update>
+			<!--Unit: day -->
+			<start-date-before-current>-1</start-date-before-current>
+			<start-date-before-redo>-2</start-date-before-redo>
+			<execute-days-default>30</execute-days-default>
+
+			<!-- 1-prepaid, 2-postpaid, 0-blank -->
+			<subscriber-type>0</subscriber-type>
+
+			<!-- For extending special operation from core -->
+			<beans>
+				<!-- Special matching operation for Maldives MSC/IN reports. If no value, 
+					it means default matching class "com.mobius.ra.service.MatchingGeneral" will 
+					be invoked. -->
+				<bean id="msc_x_matching" class="com.mobius.ra.service.Matching4Maldives"
+					super="com.mobius.ra.service.MatchingAbstract"></bean>
+			</beans>
+			<sqls msc-pp-flg="POSTP_Process_CurrentHour" msc-pp-redo-flg="POSTP_Process_CurrentHour_Redo"
+				billing-pp-flg="PP_RA_CurrentHour" billing-pp-redo-flg="PP_RA_CurrentHour_Redo">
+				<sql>
+					<method>getMscList</method>
+					<value>select a.*, 0 as volume_download,0 as volume_upload,0 as
+						charge_identifier,'' as sgsn_address, '' as ggsn_address, '' as
+						pdp_address,''as file_name from calls_nodup a where call_time >= ?
+						and call_time &lt; ? and call_type in (1,2) and duration>1</value>
+				</sql>
+				<sql>
+					<method>getMscListRedo</method>
+					<value>select a.*, 0 as volume_download,0 as volume_upload,0 as
+						charge_identifier,'' as sgsn_address, '' as ggsn_address, '' as
+						pdp_address,''as file_name from calls_nodup_redo a where call_time
+						>= ? and call_time &lt; ? and call_type in (1,2) and duration>1
+					</value>
+				</sql>
+				<sql>
+					<method>getBillingList</method>
+					<!-- <value>select * from ra_billing_nodup where call_time >= ? and 
+						call_time &lt; ? and billing_type = 1 and call_type = 1</value> -->
+					<value>select * from ra_billing_nodup where call_time >= ? and
+						call_time &lt; ? and billing_type = 1 and feed_type=306 and
+						call_type = 1 and duration > 1
+					</value>
+				</sql>
+				<sql>
+					<method>getBillingListRedo</method>
+					<value>select * from ra_billing_nodup_redo where call_time >= ? and
+						call_time &lt; ? and billing_type = 1 and feed_type=306 and
+						call_type = 1 and duration > 1
+					</value>
+				</sql>
+				<sql>
+					<!--3: MOC only; 4: Prepaid IN only. Notice order -->
+					<detail-type>3,4</detail-type>
+				</sql>
+			</sqls>
+		</report>
+
+		<report name="MSC/TAPOUT" type="2" msc_feed_type="101"
+			billing_feed_type="302">
+			<active>1</active>
+			<thread-num>5</thread-num>
+			<redo-switch>1</redo-switch>
+			<short-active>0</short-active>
+			<msc-filename-update>1</msc-filename-update>
+			<!--Unit: day -->
+			<start-date-before-current>-1</start-date-before-current>
+			<start-date-before-redo>-2</start-date-before-redo>
+			<execute-days-default>30</execute-days-default>
+
+			<!-- 1-prepaid, 2-postpaid, 0-blank -->
+			<subscriber-type>0</subscriber-type>
+
+			<beans>
+				<!-- Special matching operation for Maldives MSC/TAPOUT reports. If no 
+					value, it means default matching class "com.mobius.ra.service.MatchingGeneral" 
+					will be invoked. -->
+				<bean id="msc_x_matching" class="com.mobius.ra.service.Matching4Maldives"
+					super="com.mobius.ra.service.MatchingAbstract"></bean>
+			</beans>
+			<sqls msc-pp-flg="POSTP_Process_CurrentHour" msc-pp-redo-flg="POSTP_Process_CurrentHour_Redo"
+				billing-pp-flg="PP_RA_CurrentHour" billing-pp-redo-flg="PP_RA_CurrentHour_Redo">
+				<sql>
+					<method>getMscList</method>
+					<value>select a.*, 0 as volume_download,0 as volume_upload,0 as
+						charge_identifier,'' as sgsn_address, '' as ggsn_address, '' as
+						pdp_address,''as file_name from calls_nodup a where call_time >= ?
+						and call_time &lt; ? and call_type in (1,2,29) and s_msisdn not
+						like '960%'</value>
+				</sql>
+				<sql>
+					<method>getMscListRedo</method>
+					<value>select a.*, 0 as volume_download,0 as volume_upload,0 as
+						charge_identifier,'' as sgsn_address, '' as ggsn_address, '' as
+						pdp_address,''as file_name from calls_nodup_redo a where call_time
+						>= ? and call_time &lt; ? and call_type in (1,2,29) and s_msisdn
+						not like '960%'</value>
+				</sql>
+				<sql>
+					<method>getBillingList</method>
+					<value>select * from ra_billing_nodup where call_time >= ? and
+						call_time &lt; ? and billing_type = 2 and call_type in (1,2)
+					</value>
+				</sql>
+				<sql>
+					<method>getBillingListRedo</method>
+					<value>select * from ra_billing_nodup_redo where call_time >= ? and
+						call_time &lt; ? and billing_type = 2 and call_type in (1,2)
+					</value>
+				</sql>
+				<sql>
+					<!--5: MSC(Roaming) only; 6: TAP OUT only. Notice order -->
+					<detail-type>5,6</detail-type>
+				</sql>
+			</sqls>
+		</report>
+
+		<report name="SGSN/TAPOUT" type="4" msc_feed_type="201"
+			billing_feed_type="302">
+			<!--0: Disactive; 1: Active -->
+			<active>1</active>
+			<thread-num>10</thread-num>
+
+			<!--0: No redo; 1: Redo -->
+			<redo-switch>1</redo-switch>
+			<short-active>0</short-active>
+			<msc-filename-update>0</msc-filename-update>
+			<!--Unit: day -->
+			<start-date-before-current>-1</start-date-before-current>
+			<start-date-before-redo>-2</start-date-before-redo>
+			<execute-days-default>30</execute-days-default>
+
+			<!-- 1-prepaid, 2-postpaid, 0-blank -->
+			<subscriber-type>0</subscriber-type>
+
+			<sqls msc-pp-flg="PP_RANW_CurrentHour" msc-pp-redo-flg="PP_RANW_CurrentHour_Redo"
+				billing-pp-flg="PP_RA_CurrentHour" billing-pp-redo-flg="PP_RA_CurrentHour_Redo">
+				<sql>
+					<method>getMscList</method>
+					<value>select * from ra_network_nodup where call_time >= ? and
+						call_time &lt; ? and call_type in (12) and s_msisdn not like
+						'960%'</value>
+				</sql>
+				<sql>
+					<method>getMscListRedo</method>
+					<!--<value>select * from ra_network_nodup_redo where call_time >= ? 
+						and call_time &lt; ? and call_type in (12) and s_msisdn not like '960%'</value> -->
+					<!--<value>select * from ra_network_nodup_redo where call_time>=? and 
+						call_time &lt; ? and (volume_upload/1024>=0 and volume_download/1024>0 or 
+						volume_upload/1024>0 and volume_download/1024>=0) and call_type in (12) and 
+						s_msisdn not like '960%'</value> -->
+					<value>select * from ra_network_nodup_redo as a where call_time>=?
+						and call_time &lt; ? and call_type in (12) and s_msisdn not like
+						'960%' and not exists (select * from ra_network_nodup_redo as b
+						where volume_upload/1024=0 and volume_download/1024=0 and
+						a.call_id=b.call_id)
+					</value>
+				</sql>
+				<sql>
+					<method>getBillingList</method>
+					<value>select * from ra_billing_nodup where call_time >= ? and
+						call_time &lt; ? and billing_type = 2 and call_type in (12)
+					</value>
+				</sql>
+				<sql>
+					<method>getBillingListRedo</method>
+					<!--<value>select * from ra_billing_nodup_redo where call_time >= ? 
+						and call_time &lt; ? and billing_type = 2 and call_type in (12)</value> -->
+					<value>select * from ra_billing_nodup_redo as a where call_time>= ?
+						and call_time &lt; ? and billing_type = 2 and call_type in (12)
+						and not exists (select * from ra_billing_nodup_redo as b where
+						volume_upload/1024=0 and volume_download/1024=0 and
+						a.call_id=b.call_id)
+					</value>
+				</sql>
+
+				<sql>
+					<!--9: TAP OUT only vs SGSN; 10: SGSN only vs TAP OUT. Notice order -->
+					<detail-type>9,10</detail-type>
+				</sql>
+			</sqls>
+		</report>
+
+		<report name="GGSN/TAPIN" type="5" msc_feed_type="202"
+			billing_feed_type="303">
+			<!--0: Disactive; 1: Active -->
+			<active>1</active>
+			<thread-num>10</thread-num>
+
+			<!--0: No redo; 1: Redo -->
+			<redo-switch>1</redo-switch>
+			<short-active>0</short-active>
+			<msc-filename-update>0</msc-filename-update>
+			<!--Unit: day -->
+			<start-date-before-current>-1</start-date-before-current>
+			<start-date-before-redo>-2</start-date-before-redo>
+			<execute-days-default>30</execute-days-default>
+
+			<!-- 1-prepaid, 2-postpaid, 0-blank -->
+			<subscriber-type>0</subscriber-type>
+
+			<sqls msc-pp-flg="PP_RANW_CurrentHour" msc-pp-redo-flg="PP_RANW_CurrentHour_Redo"
+				billing-pp-flg="PP_RA_CurrentHour" billing-pp-redo-flg="PP_RA_CurrentHour_Redo">
+				<sql>
+					<method>getMscList</method>
+					<value>select * from ra_network_nodup where call_time >= ? and
+						call_time &lt; ? and call_type in (46) and sgsn_address not in
+						('202.153.87.166','202.153.87.167')
+					</value>
+				</sql>
+				<sql>
+					<method>getMscListRedo</method>
+					<value>select * from ra_network_nodup_redo where call_time >= ? and
+						call_time &lt; ? and call_type in (46) and sgsn_address not in
+						('202.153.87.166','202.153.87.167')
+					</value>
+				</sql>
+				<sql>
+					<method>getBillingList</method>
+					<value>select * from ra_billing_nodup where call_time >= ? and
+						call_time &lt; ? and billing_type = 3 and call_type in (12,46)
+					</value>
+				</sql>
+				<sql>
+					<method>getBillingListRedo</method>
+					<value>select * from ra_billing_nodup_redo where call_time >= ? and
+						call_time &lt; ? and billing_type = 3 and call_type in (12,46)
+					</value>
+				</sql>
+				<sql>
+					<!--11: TAP IN only vs GGSN; 12: GGSN vs TAP IN. Notice order -->
+					<detail-type>11,12</detail-type>
+				</sql>
+			</sqls>
+		</report>
+
+		<report name="InRoamingSummary" type="401" isRecon="N">
+			<!--0: Disactive; 1: Active -->
+			<active>1</active>
+			<thread-num>10</thread-num>
+
+			<!--0: No redo; 1: Redo -->
+			<redo-switch>0</redo-switch>
+
+			<!--Unit: day -->
+			<start-date-before-current>-2</start-date-before-current>
+			<start-date-before-redo>-2</start-date-before-redo>
+			<execute-days-default>30</execute-days-default>
+
+			<feed-type>101</feed-type>
+			<call-type></call-type>
+
+			<sqls msc-pp-flg="POSTP_Process_CurrentHour" msc-pp-redo-flg="POSTP_Process_CurrentHour_Redo">
+				<sql>
+					<method>getMscList</method>
+					<value>(select call_id,
+						o_call_id,call_time,duration,call_type,sw_id,s_msisdn, o_msisdn,
+						s_imsi,s_imei,
+						s_ci,s_lac,trunk_in,trunk_out,term_cause,term_reason,ss_code,charge_indicator,0
+						as volume_download,0 as volume_upload,0 as
+						charge_identifier,'' as
+						sgsn_address, '' as ggsn_address, '' as
+						pdp_address,''as file_name
+						from calls_nodup a where call_time >= ?
+						and call_time &lt; ? and
+						call_type in (1,2,30,31) and s_imsi!=0
+						and
+						s_imsi not like '47202%')
+						UNION
+						(select call_id, 0 as
+						o_call_id,call_time,duration,call_type,sw_id,s_msisdn, o_msisdn,
+						s_imsi,s_imei,
+						s_ci,s_lac,trunk_in,trunk_out,term_cause,term_reason,ss_code,charge_indicator,
+						volume_download, volume_upload,0 as
+						charge_identifier,'' as
+						sgsn_address, '' as ggsn_address, '' as
+						pdp_address,''as file_name
+						from ra_billing_nodup where
+						call_time >=
+						?
+						and call_time &lt; ?
+						and
+						billing_type = 2 and call_type = 12 and
+						s_imsi not like '47202%')
+					</value>
+				</sql>
+				<sql>
+					<method>getMscListRedo</method>
+					<value>(select call_id,
+						o_call_id,call_time,duration,call_type,sw_id,s_msisdn, o_msisdn,
+						s_imsi,s_imei,
+						s_ci,s_lac,trunk_in,trunk_out,term_cause,term_reason,ss_code,charge_indicator,0
+						as volume_download,0 as volume_upload,0 as
+						charge_identifier,'' as
+						sgsn_address, '' as ggsn_address, '' as
+						pdp_address,''as file_name
+						from calls_nodup_redo a where call_time >= ?
+						and call_time &lt; ?
+						and
+						call_type in (1,2,30,31) and s_imsi!=0
+						and
+						s_imsi not like
+						'47202%')
+						UNION
+						(select call_id, 0 as
+						o_call_id,call_time,duration,call_type,sw_id,s_msisdn, o_msisdn,
+						s_imsi,s_imei,
+						s_ci,s_lac,trunk_in,trunk_out,term_cause,term_reason,ss_code,charge_indicator,
+						volume_download, volume_upload,0 as
+						charge_identifier,'' as
+						sgsn_address, '' as ggsn_address, '' as
+						pdp_address,''as file_name
+						from ra_billing_nodup_redo where
+						call_time >=
+						?
+						and call_time &lt; ?
+						and billing_type = 2 and call_type = 12 and
+						s_imsi not like
+						'47202%')</value>
+				</sql>
+			</sqls>
+		</report>
+
+		<report name="MSC/RTX" type="6" msc_feed_type="101"
+			billing_feed_type="307">
+			<active>1</active>
+			<thread-num>5</thread-num>
+			<redo-switch>1</redo-switch>
+			<short-active>0</short-active>
+			<msc-filename-update>0</msc-filename-update>
+			<!--Unit: day -->
+			<start-date-before-current>-1</start-date-before-current>
+			<start-date-before-redo>-2</start-date-before-redo>
+			<execute-days-default>30</execute-days-default>
+
+			<!-- 1-prepaid, 2-postpaid, 0-blank -->
+			<subscriber-type>0</subscriber-type>
+
+			<beans>
+				<!-- Special matching operation for Maldives MSC/TAPOUT reports. If no 
+					value, it means default matching class "com.mobius.ra.service.MatchingGeneral" 
+					will be invoked. -->
+				<bean id="msc_x_matching" class="com.mobius.ra.service.Matching4Maldives"
+					super="com.mobius.ra.service.MatchingAbstract"></bean>
+			</beans>
+			<sqls msc-pp-flg="POSTP_Process_CurrentHour" msc-pp-redo-flg="POSTP_Process_CurrentHour_Redo"
+				billing-pp-flg="PP_RA_CurrentHour" billing-pp-redo-flg="PP_RA_CurrentHour_Redo">
+				<sql>
+					<method>getMscList</method>
+					<value>select a.*, 0 as volume_download,0 as volume_upload,0 as
+						charge_identifier,'' as sgsn_address, '' as ggsn_address, '' as
+						pdp_address,''as file_name from calls_nodup a where call_time >= ?
+						and call_time &lt; ? and call_type in (1,29)</value>
+				</sql>
+				<sql>
+					<method>getMscListRedo</method>
+					<value>select a.*, 0 as volume_download,0 as volume_upload,0 as
+						charge_identifier,'' as sgsn_address, '' as ggsn_address, '' as
+						pdp_address,''as file_name from calls_nodup_redo a where call_time
+						>= ? and call_time &lt; ? and call_type in (1,29)</value>
+				</sql>
+				<sql>
+					<method>getBillingList</method>
+					<value>select * from ra_billing_nodup where call_time >= ? and
+						call_time &lt; ? and billing_type = 6 and call_type in (1,29)
+					</value>
+				</sql>
+				<sql>
+					<method>getBillingListRedo</method>
+					<value>select * from ra_billing_nodup_redo where call_time >= ? and
+						call_time &lt; ? and billing_type = 6 and call_type in (1,29)
+					</value>
+				</sql>
+				<sql>
+					<!--5: MSC(Roaming) only; 6: TAP OUT only. Notice order -->
+					<detail-type>15,16</detail-type>
+				</sql>
+			</sqls>
+		</report>
+		
+		<report name="IGW/IRSF" type="500" msc_feed_type="308" billing_feed_type="" isRecon="N">
+			<!--0: Disactive; 1: Active-->
+			<active>1</active>		
+			<thread-num>1</thread-num>
+			
+			<!--0: No redo; 1: Redo-->
+			<redo-switch>0</redo-switch>
+			<short-active>0</short-active>
+			<msc-filename-update>0</msc-filename-update>
+			<!--Unit: day-->
+			<start-date-before-current>-1</start-date-before-current>
+			<start-date-before-redo>-2</start-date-before-redo>
+			<execute-days-default>30</execute-days-default>
+			
+			<!-- 1-prepaid, 2-postpaid, 0-blank -->
+			<subscriber-type>0</subscriber-type>
+			
+			<sqls msc-pp-flg="POSTP_Process_CurrentHour" msc-pp-redo-flg="POSTP_Process_CurrentHour_Redo" billing-pp-flg="PP_RA_CurrentHour" billing-pp-redo-flg="PP_RA_CurrentHour_Redo">
+				<sql>
+					<method>getIgwList</method>
+					<value>select * from calls_igw where call_time >= ? and call_time &lt; ? </value>
+				</sql>
+				<sql>
+					<method>getHotIrsfNumList</method>
+					<value>select * from hot_irsf_num</value>
+				</sql>
+				<sql>
+					<method>getSuspectIrsfNumList</method>
+					<value>select * from suspect_irsf_num</value>
+				</sql>
+			</sqls>
+		</report>
+	</report-list>
+</ra-core>

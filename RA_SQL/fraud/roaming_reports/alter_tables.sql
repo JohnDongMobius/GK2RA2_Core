@@ -1,0 +1,1 @@
+alter table ra_detail add column `tap_code` varchar(10) DEFAULT NULL;

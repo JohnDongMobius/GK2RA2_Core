@@ -1,0 +1,117 @@
+package com.mobius.ra.core.common;
+
+import com.mobius.ra.core.pojo.RaCoreCfg;
+
+public class Constants {
+	// 0: Disactive; 1: Active
+	public static int ACTIVE_DEFAULT = 1;
+	public static RaCoreCfg coreCfg;
+	public static String DATE_FORMAT_YEAR_MONTH_DAY = "yyyy-MM-dd";
+	public static String DATE_FORMAT_YEAR_MONTH_DAY2 = "yyyyMMdd";
+
+	// the prefix of core db name
+	public static String DB_NAME_CORE = "core_";
+	// the prefix of fraud db name
+	public static String DB_NAME_FRAUD = "fraud_";
+	// the prefix of mediator db name
+	public static String DB_NAME_MEDIATOR = "mediator_";
+	// keys for configure.
+	public static String DETAIL_TYPE = "detailType";
+	// second
+	public static int DEVIATION_DEFAULT = 5;
+
+	// 0: not exchange msisdn; 1: exchange msisdn
+	public static int EXCHANGE_MSISDN_DEFAULT = 0;
+	public static int EXECUTE_DAYS_DEFAULT = 60;
+
+	// Paiallelly or Serially among reports
+	public static String GENERATE_ORDER_DEFAULT = "Serially";
+
+	public static String GENERATE_ORDER_PARALLELLY = "Parallelly";
+	// generate reports serially or parallelly.
+	public static String GENERATE_ORDER_SERIALLY = "Serially";
+
+	public static String GET_BILLING_LIST = "getBillingList";
+	public static String GET_BILLING_LIST_REDO = "getBillingListRedo";
+	public static String GET_MATCHING_CLASS = "msc_x_matching";
+
+	public static String GET_MSC_LIST = "getMscList";
+	public static String GET_MSC_LIST_REDO = "getMscListRedo";
+	public static String GMT = "GMT+0";
+
+	public static int INT_ONE = 1;
+
+	public static String KEY_BILLING_LIST = "billingList";
+
+	public static String KEY_BILLING_MAP = "billingMap";
+	public static String KEY_DAO = "dao";
+
+	public static String KEY_DATE = "date";
+	public static String KEY_DETAILTYPE = "detailType";
+
+	public static String KEY_FILENAME_HASHMAP = "fileNameHashMap";
+
+	public static String KEY_MSC_LIST = "mscList";
+
+	public static String KEY_MSC_MAP = "mscMap";
+
+	public static String KEY_OPERATOR = "operator";
+	// keys for HashMap.
+	public static String KEY_REPORT = "report";
+
+	public static String KEY_REPORTTYPE = "reportType";
+	// the loop times for getting the closest paid list
+	public static int LOOP_TIMES_FOR_PAIDLIST = 30;
+	// the default matching service class.
+	public static String MATCHING_CLASS_DEFAULT = "com.mobius.ra.core.service.Matching4General";
+	public static String PATH_CONFIGXML = "config/config.xml";
+	public static String PATH_CONFIGXML_TEST = "config/Product/Maldives/config.xml";
+//	public static String PATH_CONFIGXML_TEST = "config/test/Maldives/config.xml";
+	// the path of database configuration file
+	public static String PATH_DATABASE = "config/database.properties";
+
+//	public static String PATH_DATABASE_TEST = "config/test/Maldives/database.properties";
+	public static String PATH_DATABASE_TEST = "config/Product/Maldives/database.properties";
+	// 0: No redo; 1: Redo
+	public static int REDO_SWITCH_DEFAULT = 1;
+	public static int REPORT_CALL_VOLUME_DAILY = 204;
+	public static int REPORT_FEED_VOLUME_DAILY = 203;
+	public static int REPORT_FILE_TRAFFIC_DAILY = 201;
+	public static int REPORT_FILE_TYPE_DAILY = 202;
+	public static int REPORT_RETAIL_REVENUE = 302;
+	public static int RESPECTIVE_TYPE_A_PARTY = 1;
+	public static int RESPECTIVE_TYPE_B_PARTY = 2;
+	public static int SHORT_ACTIVE_DEFAULT = 0;
+
+	// ms
+	public static int SLEEP_DURATION_AFTER_ONE_LOOP_DEFAULT = 1800000;
+
+	public static int SLEEP_DURATION_OF_PAID_DEFAULT = 10000;
+	public static int SLEEP_DURATION_OF_SUBTHREAD_DEFAULT = 10000;
+
+	// days
+	public static int START_DATE_BEFORE_CURRENT_DEFAULT = -1;
+
+	public static int START_DATE_BEFORE_CURRENT_REDO_DEFAULT = -2;
+
+	// POSTP_Process_CurrentHour_Redo in core.postprocess_config_data is local
+	// TimeZone. No need to change for specific operator.
+	public static String START_HOUR = "23";
+	// 0: blank; 1: prepaid; 2: postpaid
+	public static int SUBSCRIBER_TYPE_DEFAULT = 0;
+	public static long TEST_ENV_SELECT_LIMIT = 1000;
+	public static int THREAD_NUM_DEFAULT = 100;
+
+	// IRSF
+	public static String IRSF_NUMBER_TYPE = "IRSF_NUMBER";
+	public static String IRSF_RANGE_TYPE = "IRSF_HIGH_RISK_RANGE";
+	public static String DOMESTIC_MSISDN_LIST_GROUP = "Domestic";
+	public static String INTERNATIONAL_MSISDN_LIST_GROUP = "International";
+	public static String MALDIVES_COUNTRY_CODE = "960";
+	public static String HOURLY_HOT_IRSF_REPORT_NAME = "hourly_hot_irsf_report";
+	public static String HOURLY_MSC_IRSF_REPORT_NAME = "hourly_msc_irsf_report";
+	public static String HOURLY_SUSPECT_IRSF_REPORT_NAME = "hourly_suspect_irsf_report";
+	public static String IRSF_PROPERTIES_PATH = "config/irsf.properties"; // Server
+//    public static String IRSF_PROPERTIES_PATH = "config/test/Maldives/irsf.properties"; //Local
+
+}

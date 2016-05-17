@@ -1,0 +1,4 @@
+This is an international interconnect report similar to the one Palestine Wataniya(425_6) has. I think we can re-use most part of code of 425_6, as in watainiya, there are trunk pattern, but in 472_2, not has trunk pattern. But I have some items needing to be confirmed. 
+1. carrier should show in portal, right?
+2. international trunk should be summaried in this report. therefore please confirm international trunk list as attached image.
+3. it's daily report, and go to hourly report via drilling down link as 425_6, right?
