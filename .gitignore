@@ -1,0 +1,10 @@
+/bin/
+/target/
+.classpath
+.project
+/CVS
+.classpath
+.settings/*
+.git/*
+/.project
+/.classpath
