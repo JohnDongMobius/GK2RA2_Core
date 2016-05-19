@@ -10,8 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.mobius.ra.core.common.Constants;
 import com.mobius.ra.core.common.Tools;
@@ -32,7 +31,7 @@ import edu.emory.mathcs.backport.java.util.Collections;
  * @version v 1.0
  */
 public class IrsfDao extends CommonDao {
-	private final Logger logger = LoggerFactory.getLogger(IrsfDao.class);
+	private static Logger logger = Logger.getLogger("RA-IRSF");
 	
 	private String timeZoneGMT = Constants.GMT;
 	
@@ -356,10 +355,10 @@ public class IrsfDao extends CommonDao {
 	}
 	
 	//Initialize all hours' report status
-	public boolean checkStatus(String alias, String currentDay) throws SQLException {
+	public boolean checkStatus(String alias, String currentDay, String hotIrsfReportType, String suspectIrsfReportType) throws SQLException {
 		BaseDao baseDao = new BaseDao(alias);
 		StringBuilder sqlSb = new StringBuilder();
-		sqlSb.append("select * from hourly_report_status where status=1 and date = '" + currentDay + "'");
+		sqlSb.append("select * from hourly_report_status where status=1 and date = '" + currentDay + "' and (report_type = '" + hotIrsfReportType + "' or report_type = '" + suspectIrsfReportType + "')");
 		List<HourlyReportStatus> hourlyReportStatusList = new ArrayList<HourlyReportStatus>();
 		try {
 			baseDao.prepareStatement(sqlSb.toString());
@@ -387,27 +386,27 @@ public class IrsfDao extends CommonDao {
 	}
 	
 	//Delete records between startDate and endDate
-	public void deleteHourlyIrsfReportStatus(String alias, String startDay, String endDay) throws SQLException {
-		BaseDao baseDao = new BaseDao(alias);
-		StringBuilder sqlSb = new StringBuilder();
-		sqlSb.append("delete from hourly_report_status where date between '" + startDay + "'" + " and '" + endDay + "'");
-		try {
-			baseDao.prepareStatement(sqlSb.toString());
-			baseDao.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			baseDao.close();
-		}
-	}
+//	public void deleteHourlyIrsfReportStatus(String alias, String startDay, String endDay) throws SQLException {
+//		BaseDao baseDao = new BaseDao(alias);
+//		StringBuilder sqlSb = new StringBuilder();
+//		sqlSb.append("delete from hourly_report_status where date between '" + startDay + "'" + " and '" + endDay + "'");
+//		try {
+//			baseDao.prepareStatement(sqlSb.toString());
+//			baseDao.executeUpdate();
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		} finally {
+//			baseDao.close();
+//		}
+//	}
 	
 	//Update report status before redo by start-date-before-redo
-	public void updateHourlyIrsfReportStatusBeforeRedo(String alias, String startDay, String endDay) throws SQLException {
+	public void updateHourlyIrsfReportStatusBeforeRedo(String alias, String startDay, String endDay, String hotIrsfReportType, String suspectIrsfReportType) throws SQLException {
 		BaseDao baseDao = new BaseDao(alias, false);
 		try {
 			baseDao.releaseStmt();
 			StringBuilder sqlSb = new StringBuilder();
-			sqlSb.append("update hourly_report_status set status=? where date between '" + startDay + "'" + " and '" + endDay + "'");
+			sqlSb.append("update hourly_report_status set status=? where (report_type = '" + hotIrsfReportType + "' or report_type = '" + suspectIrsfReportType + "') and date between '" + startDay + "'" + " and '" + endDay + "'");
 			baseDao.prepareStatement(sqlSb.toString());
 			baseDao.setString(1, "0");
 			baseDao.exeBatchUpdate();
@@ -421,19 +420,19 @@ public class IrsfDao extends CommonDao {
 	}
 	
 	//Delete all report status records
-	public void deleteAllHourlyIrsfReportStatus(String alias) throws SQLException {
-		BaseDao baseDao = new BaseDao(alias);
-		StringBuilder sqlSb = new StringBuilder();
-		sqlSb.append("delete from hourly_report_status");
-		try {
-			baseDao.prepareStatement(sqlSb.toString());
-			baseDao.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			baseDao.close();
-		}
-	}
+//	public void deleteAllHourlyIrsfReportStatus(String alias) throws SQLException {
+//		BaseDao baseDao = new BaseDao(alias);
+//		StringBuilder sqlSb = new StringBuilder();
+//		sqlSb.append("delete from hourly_report_status");
+//		try {
+//			baseDao.prepareStatement(sqlSb.toString());
+//			baseDao.executeUpdate();
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		} finally {
+//			baseDao.close();
+//		}
+//	}
 	
 	public void insertOneDayIntoHourlyIrsfReportStatus(String alias, String currentDay, String type) throws SQLException {
 		BaseDao baseDao = new BaseDao(alias, false);
@@ -594,10 +593,10 @@ public class IrsfDao extends CommonDao {
 	}
 	
 	//Get hourly report list between from 24 hours, once upon thread number
-	public List<HourlyReportStatus> getOneDayHourlyReportStatusList(String alias, String currentDay, int threadNum) throws SQLException {
+	public List<HourlyReportStatus> getOneDayHourlyIrsfReportStatusList(String alias, String currentDay, int threadNum, String hotIrsfReportType, String suspectIrsfReportType) throws SQLException {
 		BaseDao baseDao = new BaseDao(alias);
 		StringBuilder sqlSb = new StringBuilder();
-		sqlSb.append("select * from hourly_report_status where status=0 and date = '" + currentDay + "'" + " order by hour asc limit " + threadNum);
+		sqlSb.append("select * from hourly_report_status where status=0 and date = '" + currentDay + "' and (report_type = '" + hotIrsfReportType + "' or report_type = '" + suspectIrsfReportType + "') order by hour asc limit " + threadNum);
 		List<HourlyReportStatus> hourlyReportStatusList = new ArrayList<HourlyReportStatus>();
 		try {
 			baseDao.prepareStatement(sqlSb.toString());

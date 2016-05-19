@@ -10,8 +10,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.mobius.ra.core.common.Constants;
 import com.mobius.ra.core.common.Tools;
@@ -28,7 +27,7 @@ import com.mobius.ra.core.thread.MscIrsfSummaryThread;
  * @version v 1.0
  */
 public class MscIrsfService implements ServiceInterface {
-	private final Logger logger = LoggerFactory.getLogger(MscIrsfService.class);
+	private static Logger logger = Logger.getLogger("RA-MSC-IRSF");
 	
 	@Override
 	public boolean summary(String[] args, String operator, Report report)
@@ -75,12 +74,12 @@ public class MscIrsfService implements ServiceInterface {
 			
 			//Initialize all hours' report status by start time and end time
 			//Insert one day 24h records status 0, if exist and status already is 1, break don't create threads.
-			if(mscIrsfDao.checkStatus(fraudAlias, currentDay)) {
-				mscIrsfDao.insertOneDayIntoHourlyIrsfReportStatus(fraudAlias, currentDay, mscIrsfReportType);
-				while(mscIrsfDao.checkStatus(fraudAlias, currentDay)) {
+			if(mscIrsfDao.checkStatus(fraudAlias, currentDay, mscIrsfReportType)) {
+				mscIrsfDao.insertOneDayIntoHourlyMscIrsfReportStatus(fraudAlias, currentDay, mscIrsfReportType);
+				while(mscIrsfDao.checkStatus(fraudAlias, currentDay, mscIrsfReportType)) {
 					//Create multiple threads for hourly reports
 					//Get hourlyReportStatusList from 24 hours split by thread num such as 8, loop 24/8=3 times
-					List<HourlyReportStatus> hourlyReportStatusList = mscIrsfDao.getOneDayHourlyReportStatusList(fraudAlias, currentDay, report.getThreadNum());
+					List<HourlyReportStatus> hourlyReportStatusList = mscIrsfDao.getOneDayHourlyMscIrsfReportStatusList(fraudAlias, currentDay, report.getThreadNum(), mscIrsfReportType);
 					
 					int threadNum = hourlyReportStatusList.size();
 					MscIrsfSummaryThread thread[] = new MscIrsfSummaryThread[threadNum];
@@ -105,14 +104,6 @@ public class MscIrsfService implements ServiceInterface {
 						}
 					}
 				}
-			}
-			
-			//Insert Msc Feed Summary and Details when generating IRSF report.
-			FeedService feedService = new FeedService();
-			try {
-				feedService.insertRAFeed(currentDay, 0, report);
-			} catch (CloneNotSupportedException e) {
-				e.printStackTrace();
 			}
 			
 			//When after one day passed, create one day report again
@@ -149,7 +140,7 @@ public class MscIrsfService implements ServiceInterface {
 		String endDay = mscIrsfDao.getDayByConfig(report.getStartDateBeforeRedo());
 		
 		//Start redo by manually status change
-		mscIrsfDao.updateHourlyIrsfReportStatusBeforeRedo(fraudAlias, startDay, endDay);
+		mscIrsfDao.updateHourlyMscIrsfReportStatusBeforeRedo(fraudAlias, startDay, endDay, mscIrsfReportType);
 		
 		mscIrsfDao.deleteHourlyMscIrsfReportBeforeRedo(fraudAlias, startDay, endDay);
 		mscIrsfDao.deleteIrsfDetailBeforeRedo(fraudAlias, startDay, endDay);
@@ -178,13 +169,13 @@ public class MscIrsfService implements ServiceInterface {
 			
 			//Initialize all hours' report status by start time and end time
 			//Insert one day 24h records status 0, if exist and status already is 1, break don't create threads.
-			if(mscIrsfDao.checkStatus(fraudAlias, currentDay)) {
-				while(mscIrsfDao.checkStatus(fraudAlias, currentDay)) {
-					mscIrsfDao.insertOneDayIntoHourlyIrsfReportStatus(fraudAlias, currentDay, mscIrsfReportType);
+			if(mscIrsfDao.checkStatus(fraudAlias, currentDay, mscIrsfReportType)) {
+				while(mscIrsfDao.checkStatus(fraudAlias, currentDay, mscIrsfReportType)) {
+					mscIrsfDao.insertOneDayIntoHourlyMscIrsfReportStatus(fraudAlias, currentDay, mscIrsfReportType);
 					
 					//Create multiple threads for hourly reports
 					//Get hourlyReportStatusList from 24 hours split by thread num such as 8, loop 24/8=3 times
-					List<HourlyReportStatus> hourlyReportStatusList = mscIrsfDao.getOneDayHourlyReportStatusList(fraudAlias, currentDay, report.getThreadNum());
+					List<HourlyReportStatus> hourlyReportStatusList = mscIrsfDao.getOneDayHourlyMscIrsfReportStatusList(fraudAlias, currentDay, report.getThreadNum(), mscIrsfReportType);
 					
 					int threadNum = hourlyReportStatusList.size();
 					MscIrsfSummaryThread thread[] = new MscIrsfSummaryThread[threadNum];
@@ -209,14 +200,6 @@ public class MscIrsfService implements ServiceInterface {
 						}
 					}
 				}
-			}
-			
-			//Insert Msc Feed Summary and Details when generating IRSF report.
-			FeedService feedService = new FeedService();
-			try {
-				feedService.insertRAFeed(currentDay, 0, report);
-			} catch (CloneNotSupportedException e) {
-				e.printStackTrace();
 			}
 			
 			//When after one day passed, create one day report again

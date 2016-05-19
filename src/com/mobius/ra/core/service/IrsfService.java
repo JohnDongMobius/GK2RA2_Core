@@ -10,8 +10,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.mobius.ra.core.common.Constants;
 import com.mobius.ra.core.common.Tools;
@@ -28,7 +27,7 @@ import com.mobius.ra.core.thread.IrsfSummaryThread;
  * @version v 1.0
  */
 public class IrsfService implements ServiceInterface {
-	private final Logger logger = LoggerFactory.getLogger(IrsfService.class);
+	private static Logger logger = Logger.getLogger("RA-IRSF");
 	
 	private String timeZoneString = Constants.coreCfg.getLocalTimezone();
 
@@ -78,13 +77,13 @@ public class IrsfService implements ServiceInterface {
 			
 			//Initialize all hours' report status by start time and end time
 			//Insert one day 24h records status 0, if exist and status already is 1, break don't create threads.
-			if(irsfDao.checkStatus(fraudAlias, currentDay)) {
+			if(irsfDao.checkStatus(fraudAlias, currentDay, hotIrsfReportType, suspectIrsfReportType)) {
 				irsfDao.insertOneDayIntoHourlyIrsfReportStatus(fraudAlias, currentDay, hotIrsfReportType);
 				irsfDao.insertOneDayIntoHourlyIrsfReportStatus(fraudAlias, currentDay, suspectIrsfReportType);
-				while(irsfDao.checkStatus(fraudAlias, currentDay)) {
+				while(irsfDao.checkStatus(fraudAlias, currentDay, hotIrsfReportType, suspectIrsfReportType)) {
 					//Create multiple threads for hourly reports
 					//Get hourlyReportStatusList from 24 hours split by thread num such as 8, loop 24/8=3 times
-					List<HourlyReportStatus> hourlyReportStatusList = irsfDao.getOneDayHourlyReportStatusList(fraudAlias, currentDay, report.getThreadNum());
+					List<HourlyReportStatus> hourlyReportStatusList = irsfDao.getOneDayHourlyIrsfReportStatusList(fraudAlias, currentDay, report.getThreadNum(), hotIrsfReportType, suspectIrsfReportType);
 					
 					int threadNum = hourlyReportStatusList.size();
 					IrsfSummaryThread thread[] = new IrsfSummaryThread[threadNum];
@@ -154,7 +153,7 @@ public class IrsfService implements ServiceInterface {
 		String endDay = irsfDao.getDayByConfig(report.getStartDateBeforeRedo());
 		
 		//Start redo by manually status change
-		irsfDao.updateHourlyIrsfReportStatusBeforeRedo(fraudAlias, startDay, endDay);
+		irsfDao.updateHourlyIrsfReportStatusBeforeRedo(fraudAlias, startDay, endDay, hotIrsfReportType, suspectIrsfReportType);
 		
 		irsfDao.deleteHourlyHotIrsfReportBeforeRedo(fraudAlias, startDay, endDay);
 		irsfDao.deleteHourlySuspectIrsfReportBeforeRedo(fraudAlias, startDay, endDay);
@@ -184,14 +183,14 @@ public class IrsfService implements ServiceInterface {
 			
 			//Initialize all hours' report status by start time and end time
 			//Insert one day 24h records status 0, if exist and status already is 1, break don't create threads.
-			if(irsfDao.checkStatus(fraudAlias, currentDay)) {
-				while(irsfDao.checkStatus(fraudAlias, currentDay)) {
+			if(irsfDao.checkStatus(fraudAlias, currentDay, hotIrsfReportType, suspectIrsfReportType)) {
+				while(irsfDao.checkStatus(fraudAlias, currentDay, hotIrsfReportType, suspectIrsfReportType)) {
 					irsfDao.insertOneDayIntoHourlyIrsfReportStatus(fraudAlias, currentDay, hotIrsfReportType);
 					irsfDao.insertOneDayIntoHourlyIrsfReportStatus(fraudAlias, currentDay, suspectIrsfReportType);
 					
 					//Create multiple threads for hourly reports
 					//Get hourlyReportStatusList from 24 hours split by thread num such as 8, loop 24/8=3 times
-					List<HourlyReportStatus> hourlyReportStatusList = irsfDao.getOneDayHourlyReportStatusList(fraudAlias, currentDay, report.getThreadNum());
+					List<HourlyReportStatus> hourlyReportStatusList = irsfDao.getOneDayHourlyIrsfReportStatusList(fraudAlias, currentDay, report.getThreadNum(), hotIrsfReportType, suspectIrsfReportType);
 					
 					int threadNum = hourlyReportStatusList.size();
 					IrsfSummaryThread thread[] = new IrsfSummaryThread[threadNum];

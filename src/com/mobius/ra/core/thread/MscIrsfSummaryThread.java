@@ -13,8 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.mobius.ra.core.common.Constants;
 import com.mobius.ra.core.dao.DashboardSummaryFDDao;
@@ -33,7 +32,7 @@ import com.mobius.ra.core.pojo.Tapcode;
  * @version v 1.0
  */
 public class MscIrsfSummaryThread extends Thread {
-	private final Logger logger = LoggerFactory.getLogger(MscIrsfSummaryThread.class);
+	private static Logger logger = Logger.getLogger("RA-MSC-IRSF");
 
 	private Report report;
 	private MscIrsfDao mscIrsfDao;

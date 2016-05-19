@@ -2,7 +2,7 @@ package com.mobius.ra.core.common;
 
 import com.mobius.ra.core.pojo.RaCoreCfg;
 
-public class Constants {
+public class Constants_Local {
 	// 0: Disactive; 1: Active
 	public static int ACTIVE_DEFAULT = 1;
 	public static RaCoreCfg coreCfg;
@@ -65,11 +65,12 @@ public class Constants {
 	// the default matching service class.
 	public static String MATCHING_CLASS_DEFAULT = "com.mobius.ra.core.service.Matching4General";
 	public static String PATH_CONFIGXML = "config/config.xml";
-	public static String PATH_CONFIGXML_TEST = "config/config.xml";
+	public static String PATH_CONFIGXML_TEST = "config/test/Maldives/config.xml";
+//	public static String PATH_CONFIGXML_TEST = "config/test/Maldives/config.xml";
 	// the path of database configuration file
-	public static String PATH_DATABASE = "config/database.properties";
+	public static String PATH_DATABASE = "config/test/Maldives/database.properties";
 
-	public static String PATH_DATABASE_TEST = "config/database.properties";
+	public static String PATH_DATABASE_TEST = "config/test/Maldives/database.properties";
 	// 0: No redo; 1: Redo
 	public static int REDO_SWITCH_DEFAULT = 1;
 	public static int REPORT_CALL_VOLUME_DAILY = 204;
@@ -109,6 +110,6 @@ public class Constants {
 	public static String HOURLY_HOT_IRSF_REPORT_NAME = "hourly_hot_irsf_report";
 	public static String HOURLY_MSC_IRSF_REPORT_NAME = "hourly_msc_irsf_report";
 	public static String HOURLY_SUSPECT_IRSF_REPORT_NAME = "hourly_suspect_irsf_report";
-	public static String IRSF_PROPERTIES_PATH = "config/irsf.properties"; // Server
+    public static String IRSF_PROPERTIES_PATH = "config/test/Maldives/irsf.properties"; //Local
 
 }

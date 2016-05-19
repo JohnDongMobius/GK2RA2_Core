@@ -16,8 +16,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.mobius.ra.core.common.Constants;
 import com.mobius.ra.core.common.Tools;
@@ -39,7 +38,7 @@ import com.mobius.ra.core.pojo.SuspectIrsfNum;
  * @version v 1.0
  */
 public class IrsfSummaryThread extends Thread {
-	private final Logger logger = LoggerFactory.getLogger(IrsfSummaryThread.class);
+	private static Logger logger = Logger.getLogger("RA-IRSF");
 
 	private Report report;
 	private IrsfDao irsfDao;
