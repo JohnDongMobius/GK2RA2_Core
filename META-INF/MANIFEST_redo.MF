@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Class-Path: ./lib/commons-logging.jar ./lib/dom4j.jar ./lib/edtftpj.jar ./lib/jxl.jar ./lib/log4j.jar ./lib/mail.jar ./lib/mysql-connector-java-5.1.7-bin.jar ./lib/proxool.jar ./lib/proxool-cglib.jar 
+ ./lib/axiom-api-1.2.7.jar  ./lib/axiom-dom-1.2.7.jar ./lib/axiom-impl-1.2.7.jar ./lib/axis2-kernel-1.4.1.jar ./lib/backport-util-concurrent-3.1.jar 
+ ./lib/commons-beanutils-1.7.0.jar  ./lib/commons-codec-1.3.jar ./lib/commons-collections-3.2.jar ./lib/commons-httpclient-3.1.jar ./lib/commons-lang-2.5.jar 
+ ./lib/ezmorph-1.0.5.jar ./lib/jaxen-1.1-beta-4.jar ./lib/json-lib-2.3-jdk15.jar ./lib/neethi-2.0.4.jar ./lib/wsdl4j-1.6.2.jar ./lib/XmlSchema-1.4.2.jar 
+ ./lib/ehcache-core-2.4.4.jar ./lib/ehcache-terracotta-2.4.4.jar ./lib/slf4j-api-1.6.1.jar ./lib/slf4j-jdk14-1.6.1.jar ./lib/jsch-0.1.51.jar
+Main-Class: com.mobius.ra.AppRedo

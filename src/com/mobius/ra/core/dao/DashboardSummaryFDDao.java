@@ -3,8 +3,7 @@ package com.mobius.ra.core.dao;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import com.mobius.ra.core.pojo.DashboardSummaryFD;
 import com.mobius.ra.core.pojo.Report;
@@ -15,7 +14,7 @@ import com.mobius.ra.core.pojo.Report;
  * @version v 1.0
  */
 public class DashboardSummaryFDDao extends CommonDao {
-	private final Logger logger = LoggerFactory.getLogger(DashboardSummaryFDDao.class);
+	private static Logger logger = Logger.getLogger("RA-Dashboard-Summary");
 	
 	public DashboardSummaryFDDao(Report report) {
 		super.report = report;
@@ -84,6 +83,10 @@ public class DashboardSummaryFDDao extends CommonDao {
 		sqlSb.append("insert into dashboard_summary (traffic_date, report_name, record_count, create_time, update_time)");
 		sqlSb.append(" values (?,?,?,?,?)");
 		sqlSb.append(" on duplicate key update record_count=?, update_time=?");
+		//for test
+//		if (dashboardSummaryList.size()>0) {
+//			logger.info(sqlSb.toString()+"  "+dashboardSummaryList.get(0).getTrafficDate());
+//		}
 		try {
 			baseDao.releaseStmt();
 			baseDao.prepareStatement(sqlSb.toString());
@@ -95,7 +98,6 @@ public class DashboardSummaryFDDao extends CommonDao {
 				baseDao.setString(5, dashboardSummary.getUpdateTime());
 				baseDao.setInt(6, dashboardSummary.getRecordCount());
 				baseDao.setString(7, dashboardSummary.getUpdateTime());
-				System.out.println(sqlSb.toString()+":::"+dashboardSummary.getTrafficDate());
 				baseDao.addBatch();
 			}
 			baseDao.exeBatchUpdate();
