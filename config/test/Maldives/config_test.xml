@@ -366,8 +366,8 @@
 			<short-active>0</short-active>
 			<msc-filename-update>0</msc-filename-update>
 			<!--Unit: day-->
-			<start-date-before-current>-30</start-date-before-current>
-			<start-date-before-redo>-31</start-date-before-redo>
+			<start-date-before-current>-1</start-date-before-current>
+			<start-date-before-redo>-2</start-date-before-redo>
 			<execute-days-default>30</execute-days-default>
 			
 			<!-- 1-prepaid, 2-postpaid, 0-blank -->
@@ -376,7 +376,7 @@
 			<sqls msc-pp-flg="POSTP_Process_CurrentHour" msc-pp-redo-flg="POSTP_Process_CurrentHour_Redo" billing-pp-flg="PP_RA_CurrentHour" billing-pp-redo-flg="PP_RA_CurrentHour_Redo">
 				<sql>
 					<method>getCallsNoDup</method>
-					<value>select * from calls_nodup where call_time >= ? and call_time &lt; ? order by s_msisdn </value>
+					<value>select * from calls_nodup where s_imsi not like '47202%' and call_type=1 and call_time >= ? and call_time &lt; ? order by s_msisdn </value>
 				</sql>
 				<sql>
 					<method>getTapcode</method>

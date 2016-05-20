@@ -140,7 +140,7 @@ public class MscIrsfSummaryThread extends Thread {
 						mscIrsfDetail.setRuleId(1);
 						mscIrsfDetailList.add(mscIrsfDetail);
 					}
-				} else if ((oMsisdnSet.size()/callsNoDupIrsfList.size())>=callsUniqueBNumber) {
+				} else if (callsNoDupIrsfList.size()>1 && (oMsisdnSet.size()/callsNoDupIrsfList.size())>=callsUniqueBNumber) {
 					HourlyMscIrsfReport hourlyMscIrsfReport = new HourlyMscIrsfReport();
 					hourlyMscIrsfReport.setTrafficDate(hourlyReportStatus.getDate());
 					hourlyMscIrsfReport.setTrafficHour(String.valueOf(hourlyReportStatus.getHour()));

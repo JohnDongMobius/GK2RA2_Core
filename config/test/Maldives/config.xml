@@ -724,7 +724,7 @@
 				billing-pp-flg="PP_RA_CurrentHour" billing-pp-redo-flg="PP_RA_CurrentHour_Redo">
 				<sql>
 					<method>getCallsNoDup</method>
-					<value>select * from calls_nodup where call_time >= ? and call_time &lt; ? order by s_msisdn </value>
+					<value>select * from calls_nodup where s_imsi not like '47202%' and call_type=1 and call_time >= ? and call_time &lt; ? order by s_msisdn </value>
 				</sql>
 				<sql>
 					<method>getTapcode</method>
