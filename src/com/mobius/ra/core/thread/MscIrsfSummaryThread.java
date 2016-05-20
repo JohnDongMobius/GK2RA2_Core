@@ -79,8 +79,11 @@ public class MscIrsfSummaryThread extends Thread {
 			Map<Long, List<CallsNoDupIrsf>> callsNoDupIrsfMap = new HashMap<Long, List<CallsNoDupIrsf>>();
 			if(hourlyCallsNoDupIrsfList!=null&&hourlyCallsNoDupIrsfList.size()>0) {
 				for (int i = 0; i < hourlyCallsNoDupIrsfList.size(); i++) {
-					
-					if((i+1) < hourlyCallsNoDupIrsfList.size()) {
+					//avoid java.lang.ArrayIndexOutOfBoundsException: -1
+					if(hourlyCallsNoDupIrsfList.size()==1){
+						callsNoDupIrsfList.add(hourlyCallsNoDupIrsfList.get(0));
+						callsNoDupIrsfMap.put(hourlyCallsNoDupIrsfList.get(0).getsMsisdn(), callsNoDupIrsfList);
+					}else if((i+1) < hourlyCallsNoDupIrsfList.size()) {
 						if(hourlyCallsNoDupIrsfList.get(i).getsMsisdn() == hourlyCallsNoDupIrsfList.get(i+1).getsMsisdn()){
 							callsNoDupIrsfList.add(hourlyCallsNoDupIrsfList.get(i));
 						}else{
@@ -88,6 +91,7 @@ public class MscIrsfSummaryThread extends Thread {
 							callsNoDupIrsfMap.put(hourlyCallsNoDupIrsfList.get(i).getsMsisdn(), callsNoDupIrsfList);
 							callsNoDupIrsfList = new ArrayList<CallsNoDupIrsf>();
 						}
+					//java.lang.ArrayIndexOutOfBoundsException out of range
 					}else if ((i+1)==hourlyCallsNoDupIrsfList.size()){
 						if(hourlyCallsNoDupIrsfList.get(i-1).getsMsisdn() == hourlyCallsNoDupIrsfList.get(i).getsMsisdn()){
 							callsNoDupIrsfList.add(hourlyCallsNoDupIrsfList.get(i));
@@ -126,6 +130,7 @@ public class MscIrsfSummaryThread extends Thread {
 					hourlyMscIrsfReport.setsImsi(callsNoDupIrsfList.get(0).getsImsi());
 					hourlyMscIrsfReport.setTapcode(getTapcodeFromImsi(String.valueOf(callsNoDupIrsfList.get(0).getsImsi()), tapCodeList));
 					hourlyMscIrsfReport.setNumberOfCalls(numberOfCalls);
+					hourlyMscIrsfReport.setTotalDuration(sumDuration);
 					hourlyMscIrsfReport.setRoleId(1);
 					hourlyMscIrsfReportList.add(hourlyMscIrsfReport);
 					for(CallsNoDupIrsf callsNoDupIrsf : callsNoDupIrsfList) {
@@ -148,6 +153,7 @@ public class MscIrsfSummaryThread extends Thread {
 					hourlyMscIrsfReport.setsImsi(callsNoDupIrsfList.get(0).getsImsi());
 					hourlyMscIrsfReport.setTapcode(getTapcodeFromImsi(String.valueOf(callsNoDupIrsfList.get(0).getsImsi()), tapCodeList));
 					hourlyMscIrsfReport.setNumberOfCalls(numberOfCalls);
+					hourlyMscIrsfReport.setTotalDuration(sumDuration);
 					hourlyMscIrsfReport.setRoleId(2);
 					hourlyMscIrsfReportList.add(hourlyMscIrsfReport);
 					for(CallsNoDupIrsf callsNoDupIrsf : callsNoDupIrsfList) {
